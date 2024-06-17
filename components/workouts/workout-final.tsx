@@ -19,7 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 
-import { BotCard } from '../stocks'
+import { BotCard } from '../workouts-utils/message'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '../ui/select'
 import { IconCooldown, IconBalanceCore, IconDumbell, IconWarmup, IconStrength } from '../ui/icons'
 import { Workout } from '@/lib/types'

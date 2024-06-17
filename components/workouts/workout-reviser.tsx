@@ -21,13 +21,13 @@ import {
 } from "@/components/ui/form"
 import { Button } from '@/components/ui/button'
 
-import { BotCard } from '../stocks'
+import { BotCard } from '../workouts-utils/message'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '../ui/select'
 import { UIState, type AI } from '@/lib/chat/actions'
 import { IconCooldown, IconBalanceCore, IconDumbell, IconWarmup, IconStrength } from '../ui/icons'
 import { Workout } from '@/lib/types'
 import { nanoid } from 'nanoid'
-import { UserMessage } from '../stocks/message'
+import { UserMessage } from '../workouts-utils/message'
 
 function updateOriginalWorkout(originalJson: any, formJson: any) {
   // Iterate over each key-value pair in the form JSON

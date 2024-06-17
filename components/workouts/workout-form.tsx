@@ -24,9 +24,10 @@ import { Input } from "@/components/ui/input"
 import { Button } from '@/components/ui/button'
 import { WorkoutInputSchema } from "@/lib/types"
 
-import { BotCard } from '../stocks'
+import { BotCard } from '../workouts-utils/message'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '../ui/select'
 import { UIState, type AI } from '@/lib/chat/actions'
+import { useTheme } from 'next-themes'
 
 export const defaultWorkoutInput: z.infer<typeof WorkoutInputSchema> = {
     title: "",
@@ -41,10 +42,11 @@ export const defaultWorkoutInput: z.infer<typeof WorkoutInputSchema> = {
     goals: "",
   }
 
-export function WorkoutForm({ chatId }: { chatId: string | undefined }) {
+export function WorkoutForm({ chatId, isShared }: { chatId: string | undefined, isShared: boolean }) {
   const { generateWorkout } = useActions()
   const [messages, setMessages] = useUIState<typeof AI>()
   const [generatingUI, setGeneratingUI] = React.useState<null | React.ReactNode>(null)
+  const { setTheme, theme } = useTheme()
   
   const form = useForm<z.infer<typeof WorkoutInputSchema>>({
     resolver: zodResolver(WorkoutInputSchema),
@@ -59,6 +61,12 @@ export function WorkoutForm({ chatId }: { chatId: string | undefined }) {
     setMessages((currentMessages: UIState[]) => [...currentMessages, response.newMessage]);
     form.reset(data);
   }
+
+  React.useEffect(() => {
+    if (isShared) {
+      setTheme('dark');
+    }
+  }, [])
 
   const formDisabled = (!!generatingUI || messages.length > 0)
   

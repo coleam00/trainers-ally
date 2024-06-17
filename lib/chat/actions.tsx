@@ -9,11 +9,10 @@ import {
 import { RemoteRunnable } from "@langchain/core/runnables/remote";
 
 import {
-  spinner,
   BotCard,
-  BotMessage,
-  SystemMessage
-} from '@/components/stocks'
+  BotMessage
+} from '@/components/workouts-utils/message'
+import { spinner } from '@/components/workouts-utils/spinner'
 
 import { z } from 'zod'
 import {
@@ -22,7 +21,7 @@ import {
   nanoid
 } from '@/lib/utils'
 import { saveChat } from '@/app/actions'
-import { SpinnerMessage, UserMessage } from '@/components/stocks/message'
+import { UserMessage } from '@/components/workouts-utils/message'
 import { AIWorkoutType, Chat, Message, Workout, WorkoutInputSchema, WorkoutState } from '@/lib/types'
 import { auth } from '@/auth'
 import { WorkoutReviser } from '@/components/workouts/workout-reviser';

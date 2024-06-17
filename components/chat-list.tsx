@@ -16,7 +16,7 @@ export function ChatList({ id, messages, session, isShared }: ChatList) {
   const startingMessage: UIState = [{
     id: "workout-form",
     stage: "initial",
-    display: <WorkoutForm chatId={id} />
+    display: <WorkoutForm chatId={id} isShared={isShared} />
   }]
 
   return (

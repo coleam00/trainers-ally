@@ -2,13 +2,9 @@ import * as React from 'react'
 import Link from 'next/link'
 
 import Image from 'next/image'
-import { cn } from '@/lib/utils'
 import { auth } from '@/auth'
 import { Button } from '@/components/ui/button'
-import {
-  IconNextChat,
-  IconSeparator
-} from '@/components/ui/icons'
+import { IconSeparator } from '@/components/ui/icons'
 import { UserMenu } from '@/components/user-menu'
 import { SidebarMobile } from './sidebar-mobile'
 import { SidebarToggle } from './sidebar-toggle'
@@ -29,8 +25,13 @@ async function UserOrLogin() {
         </>
       ) : (
         <Link href="/new" rel="nofollow">
-          <IconNextChat className="size-6 mr-2 dark:hidden" inverted />
-          <IconNextChat className="hidden size-6 mr-2 dark:block" />
+          <Image
+            src="/logo.png"
+            alt="Logo"
+            width={25}
+            height={25}
+            className="mr-2"
+          />
         </Link>
       )}
       <div className="flex items-center">
