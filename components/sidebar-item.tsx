@@ -62,7 +62,7 @@ export function SidebarItem({ index, chat, children }: SidebarItemProps) {
             >
               <IconUsers className="mr-2 mt-1 text-zinc-500" />
             </TooltipTrigger>
-            <TooltipContent>This is a shared chat.</TooltipContent>
+            <TooltipContent>This is a shared workout.</TooltipContent>
           </Tooltip>
         ) : (
           <IconMessage className="mr-2 mt-1 text-zinc-500" />

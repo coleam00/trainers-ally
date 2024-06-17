@@ -42,33 +42,36 @@ export interface User extends Record<string, any> {
 }
 
 export const WorkoutInputSchema = z.object({
+  title: z.string()
+    .min(1, { message: "Title is required." })
+    .max(100, { message: "Title is too long." }),
   phase: z.enum(["1", "2", "3"], {
-      message: "Workout Phase must be between 1 and 3.",
-  }),    
+    message: "Workout Phase must be between 1 and 3.",
+  }),
   workoutsInWeek: z.enum(["1", "2", "3", "4", "5", "6", "7"], {
     message: "Number of Workouts in Week must be between 1 and 7.",
   }),
-  workoutLength: z.string().min(1, {
-    message: "Workout length is required.",
-  }),
-  gymEquipment: z.string().min(1, {
-    message: "Gym Equipment is required.",
-  }),
-  preferredWorkouts: z.string().min(1, {
-    message: "Workout Preferences are required.",
-  }),
-  weight: z.string().min(1, {
-      message: "Weight is required.",
-  }),
+  workoutLength: z.string()
+    .min(1, { message: "Workout length is required." })
+    .max(50, { message: "Workout length is too long." }),
+  gymEquipment: z.string()
+    .min(1, { message: "Gym Equipment is required." })
+    .max(200, { message: "Gym Equipment is too long." }),
+  preferredWorkouts: z.string()
+    .min(1, { message: "Workout Preferences are required." })
+    .max(200, { message: "Workout Preferences are too long." }),
+  weight: z.string()
+    .min(1, { message: "Weight is required." })
+    .max(50, { message: "Weight is too long." }),
   sex: z.enum(["male", "female"], {
     message: "Sex must be either male or female.",
   }),
-  height: z.string().min(1, {
-      message: "Height is required.",
-  }),
-  goals: z.string().min(1, {
-    message: "Goals are required.",
-  }),
+  height: z.string()
+    .min(1, { message: "Height is required." })
+    .max(50, { message: "Height is too long." }),
+  goals: z.string()
+    .min(1, { message: "Goals are required." })
+    .max(200, { message: "Goals are too long." }),
 });
 
 export const WorkoutOutputSchema = z.object({

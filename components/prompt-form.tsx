@@ -82,16 +82,16 @@ export function PromptForm({
               }}
             >
               <IconPlus />
-              <span className="sr-only">New Chat</span>
+              <span className="sr-only">New Workout</span>
             </Button>
           </TooltipTrigger>
-          <TooltipContent>New Chat</TooltipContent>
+          <TooltipContent>New Workout</TooltipContent>
         </Tooltip>
         <Textarea
           ref={inputRef}
           tabIndex={0}
           onKeyDown={onKeyDown}
-          placeholder="Send a message."
+          placeholder={inputDisabled ? "Wait until you are given a workout to revise to provide input here..." : "(Optional) Provide input to revise workout"}
           className="min-h-[60px] w-full resize-none bg-transparent px-4 py-[1.3rem] focus-within:outline-none sm:text-sm"
           autoFocus
           spellCheck={false}
@@ -101,17 +101,17 @@ export function PromptForm({
           rows={1}
           value={input}
           disabled={inputDisabled}
-          onChange={e => setInput(e.target.value)}
+          onChange={e => {if (e.target.value.length < 600) {setInput(e.target.value)}}}
         />
         <div className="absolute right-0 top-[13px] sm:right-4">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button type="submit" size="icon" className="color-btn" disabled={inputDisabled || input === ''}>
                 <IconArrowElbow />
-                <span className="sr-only">Send message</span>
+                <span className="sr-only">Provide input to revise workout</span>
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Send message</TooltipContent>
+            <TooltipContent>Provide input to revise workout</TooltipContent>
           </Tooltip>
         </div>
       </div>

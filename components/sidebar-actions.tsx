@@ -54,7 +54,7 @@ export function SidebarActions({
               <span className="sr-only">Share</span>
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Share chat</TooltipContent>
+          <TooltipContent>Share workout</TooltipContent>
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -68,7 +68,7 @@ export function SidebarActions({
               <span className="sr-only">Delete</span>
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Delete chat</TooltipContent>
+          <TooltipContent>Delete workout</TooltipContent>
         </Tooltip>
       </div>
       <ChatShareDialog
@@ -83,7 +83,7 @@ export function SidebarActions({
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete your chat message and remove your
+              This will permanently delete your workout and remove your
               data from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -110,7 +110,7 @@ export function SidebarActions({
                   setDeleteDialogOpen(false)
                   router.refresh()
                   router.push('/')
-                  toast.success('Chat deleted')
+                  toast.success('Workout deleted')
                 })
               }}
             >

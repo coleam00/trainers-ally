@@ -70,7 +70,7 @@ export function WorkoutFinal({ workouts }: { workouts: Workout[] }) {
 
   return (
     <BotCard>
-      <div className="p-4 ml-2 border rounded-xl bg-zinc-950">
+      <div className="p-4 ml-2 border rounded-xl bg-zinc-100 dark:bg-zinc-950">
         <h3 className="primary-color-text text-center pt-2 mb-2 text-2xl font-bold">Final Workouts</h3>
         <p className="text-md text-center">Here are your final workouts! Feel free to still select altneratives.</p>
         <div className="flex justify-center">

@@ -29,6 +29,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { UIState, type AI } from '@/lib/chat/actions'
 
 export const defaultWorkoutInput: z.infer<typeof WorkoutInputSchema> = {
+    title: "",
     phase: "1",
     workoutsInWeek: "4",
     workoutLength: "",
@@ -63,11 +64,26 @@ export function WorkoutForm({ chatId }: { chatId: string | undefined }) {
   
   return (
     <BotCard>
-    <div className="p-4 ml-2 border rounded-xl bg-zinc-950">
-        <h3 className="primary-color-text text-center mb-6 text-2xl font-bold">Workout Generator</h3>
+    <div className="p-4 ml-2 border rounded-xl bg-zinc-100 dark:bg-zinc-950">
+        <h3 className="primary-color-text text-center mb-2 pt-3 text-2xl font-bold">Workout Generator</h3>
         <div className="flex justify-center">
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+                control={form.control}
+                name="title"
+                disabled={formDisabled}
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Workout Title</FormLabel>
+                    <FormControl>
+                    <Input placeholder="6/17 Week for Ben, workout for myself this week, etc." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+
             <div className="grid grid-cols-3 gap-4">
                 <FormField
                 control={form.control}

@@ -134,7 +134,7 @@ async function generateWorkout(chatId: string | undefined, inputData: z.infer<ty
           }]
         }
       ],
-      state
+      workoutState: state
     })
   })
 
@@ -267,7 +267,7 @@ async function continueGeneratingWorkout(chatId: string | undefined, userFeedbac
           }]
         }
       ],
-      state
+      workoutState: state
     })
   })
 
@@ -332,11 +332,8 @@ export const AI: any = createAI({
       const userId = session.user.id as string
       const path = `/chat/${chatId}`
 
-      // const firstMessageContent = messages[0].content as string
-      // const title = firstMessageContent.substring(0, 100)
-      const title = `Workout ${chatId}`;
-
-      console.log(messages);
+      console.log(messages[0].content[0])
+      const title = (messages[0].content[0] as any)?.state?.input?.title || `Workout ${chatId}`;
 
       const chat: Chat = {
         id: chatId,
