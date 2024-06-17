@@ -40,7 +40,7 @@ export function WorkoutFinal({ workouts }: { workouts: Workout[] }) {
         const exercise = workout[key][i].exercise;
         const options = [exercise, ...workout[key][i].alternatives];
         acc[`workout-${workoutIndex}-${key}-${i}`] = z.enum(options as any, {
-          message: "Exercise is required",
+          required_error: "Exercise is required"
         });
       }
       return acc;

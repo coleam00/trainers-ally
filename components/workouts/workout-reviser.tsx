@@ -86,7 +86,7 @@ export function WorkoutReviser({ chatId, index, day, workout }: { chatId: string
         const exercise = workout[key][i].exercise;
         const options = asTuple(exercise, ...workout[key][i].alternatives);
         acc[`${key}-${i}`] = z.enum(options, {
-          message: "Exercise is required",
+          required_error: "Exercise is required"
       });
       }
       return acc;

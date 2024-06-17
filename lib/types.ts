@@ -46,10 +46,10 @@ export const WorkoutInputSchema = z.object({
     .min(1, { message: "Title is required." })
     .max(100, { message: "Title is too long." }),
   phase: z.enum(["1", "2", "3"], {
-    message: "Workout Phase must be between 1 and 3.",
+    required_error: "Workout Phase must be between 1 and 3.",
   }),
   workoutsInWeek: z.enum(["1", "2", "3", "4", "5", "6", "7"], {
-    message: "Number of Workouts in Week must be between 1 and 7.",
+    required_error: "Number of Workouts in Week must be between 1 and 7.",
   }),
   workoutLength: z.string()
     .min(1, { message: "Workout length is required." })
@@ -64,7 +64,7 @@ export const WorkoutInputSchema = z.object({
     .min(1, { message: "Weight is required." })
     .max(50, { message: "Weight is too long." }),
   sex: z.enum(["male", "female"], {
-    message: "Sex must be either male or female.",
+    required_error: "Sex must be either male or female."
   }),
   height: z.string()
     .min(1, { message: "Height is required." })
@@ -76,10 +76,10 @@ export const WorkoutInputSchema = z.object({
 
 export const WorkoutOutputSchema = z.object({
   phase: z.enum(["1", "2", "3"], {
-      message: "Workout Phase must be between 1 and 3.",
+    required_error: "Workout Phase must be between 1 and 3.",
   }),    
   workoutsInWeek: z.enum(["1", "2", "3", "4", "5", "6", "7"], {
-    message: "Number of Workouts in Week must be between 1 and 7.",
+    required_error: "Number of Workouts in Week must be between 1 and 7.",
   }),
   workoutLength: z.string().min(1, {
     message: "Workout length is required.",
@@ -94,7 +94,7 @@ export const WorkoutOutputSchema = z.object({
       message: "Weight is required.",
   }),
   sex: z.enum(["male", "female"], {
-    message: "Sex must be either male or female.",
+    required_error: "Sex must be either male or female.",
   }),
   height: z.string().min(1, {
       message: "Height is required.",
