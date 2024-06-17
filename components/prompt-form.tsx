@@ -27,18 +27,22 @@ export function PromptForm({
   input: string
   setInput: (value: string) => void
 }) {
-  const router = useRouter()
-  const { formRef, onKeyDown } = useEnterSubmit()
-  const inputRef = React.useRef<HTMLTextAreaElement>(null)
-  const { continueGeneratingWorkout } = useActions()
-  const [messages, setMessages] = useUIState<typeof AI>()
+  const router = useRouter()  // Next.js router defined here for the new workout button to the left of chat input
+  const { formRef, onKeyDown } = useEnterSubmit() // Allows user to type enter to submit revision message
+  const inputRef = React.useRef<HTMLTextAreaElement>(null)  // Refers to the input element so it can be focused automatically
+  const { continueGeneratingWorkout } = useActions() // AI action - invokes the LangServe runnable to revise the workout based on the free form text input provided
+  const [messages, setMessages] = useUIState<typeof AI>() // Hook to get and set the UI messages which are based on the AI state
 
+  // Focus on the input by default
   React.useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus()
     }
   }, [])
 
+  // The input is only ever enabled when the user currently has the option to revise the current workout generated
+  // If providing intial input for the LangServe endpoint, selecting alternatives for an already revised workout, etc.,
+  // then there is no need for the input so it is disabled
   const inputDisabled = messages.length < 1 || messages[messages.length - 1].stage !== "generatedWorkout"
 
   return (

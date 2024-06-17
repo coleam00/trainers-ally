@@ -6,27 +6,21 @@ import {
   getMutableAIState,
   getAIState
 } from 'ai/rsc'
-import { RemoteRunnable } from "@langchain/core/runnables/remote";
-
-import {
-  BotCard,
-  BotMessage
-} from '@/components/workouts-utils/message'
-import { spinner } from '@/components/workouts-utils/spinner'
-
 import { z } from 'zod'
-import {
-  runAsyncFnWithoutBlocking,
-  sleep,
-  nanoid
-} from '@/lib/utils'
+import { RemoteRunnable } from "@langchain/core/runnables/remote"
+
+import { BotCard, BotMessage } from '@/components/workouts-utils/message'
+import { spinner } from '@/components/workouts-utils/spinner'
+import { runAsyncFnWithoutBlocking, sleep, nanoid } from '@/lib/utils'
+import { AIWorkoutType, Chat, Message, Workout, WorkoutInputSchema, WorkoutState } from '@/lib/types'
 import { saveChat } from '@/app/actions'
 import { UserMessage } from '@/components/workouts-utils/message'
-import { AIWorkoutType, Chat, Message, Workout, WorkoutInputSchema, WorkoutState } from '@/lib/types'
+import { WorkoutReviser } from '@/components/workouts/workout-reviser'
+import { WorkoutFinal } from '@/components/workouts/workout-final'
 import { auth } from '@/auth'
-import { WorkoutReviser } from '@/components/workouts/workout-reviser';
-import { WorkoutFinal } from '@/components/workouts/workout-final';
 
+// The default state for generating workouts for the week
+// All of the keys here match the pieces of state in the LangGraph graph
 export const defaultWorkoutState = {
   day: 0,
   phase: 0,
@@ -41,15 +35,24 @@ export const defaultWorkoutState = {
   thread_id: ""
 }
 
+// The LangServe runanble endpoint to host the entire power
+// of my LangGraph graph behind the /workout API endpoint
 const runnable = new RemoteRunnable({
   url: `${process.env.REMOTE_RUNNABLE_URL}/workout/`,
 });
 
+/**
+ * Invokes the LangServe runnable to create the first workout for the week based on the user input
+ * @param {string | undefined} chatId - The ID of chat which is also used as the thread ID for the LangServe invocation to keep the same session through generating the workouts for a week
+ * @param {z.infer<typeof WorkoutInputSchema>} inputData - All of the inputs for the LLM workout generation. The WorkoutInputSchema matches the state attributes of the LangGraph graph
+ */
 async function generateWorkout(chatId: string | undefined, inputData: z.infer<typeof WorkoutInputSchema>) {
   'use server'
 
   const aiState = getMutableAIState<typeof AI>()  
 
+  // Defines the UI that will be updated through the workout generating to provide immediate
+  // feedback to the user that the workout is being generated
   const generatingWorkout = createStreamableUI(
     <div className="inline-flex items-start gap-1 md:items-center">
       {spinner}
@@ -59,10 +62,16 @@ async function generateWorkout(chatId: string | undefined, inputData: z.infer<ty
     </div>
   )
 
+  // Defines the piece of UI that will eventually be the form to revise the first workout
+  // once it is generated from the LangServe endpoint
   const systemMessage = createStreamableUI(null)
+
+  // Chat ID is used as the LangServe Thread ID so the workout session can be maintained
   const threadId = chatId || nanoid();
 
   runAsyncFnWithoutBlocking(async () => {
+    // Defines all the inputs for the LangServe invocation based on the inputs to the initial workout form
+    // All the keys in WorkoutState match the state for the LangGraph graph
     let state: WorkoutState = {
       day: 0,
       phase: parseInt(inputData.phase),
@@ -77,6 +86,8 @@ async function generateWorkout(chatId: string | undefined, inputData: z.infer<ty
       thread_id: threadId
     };
 
+    // Streams the events from calling the LangServe endpoint
+    // as the agent generates the workout
     const logStream = await runnable.streamEvents(
       state,
       {
@@ -87,12 +98,16 @@ async function generateWorkout(chatId: string | undefined, inputData: z.infer<ty
       }
     );
 
+    // Loops through all events streamed from LangServe agents
     for await (const chunk of logStream) {
       if (chunk.data.output) {
+        // All updates to the internal LangGraph state are pushed into the frontend state object to maintain consistency
+        // of state between the backend and the frontend
         const newState = { ...state, ...Object.fromEntries(Object.entries(chunk.data.output).filter(([key]) => key in state)) };
         Object.assign(state, newState);
       }
 
+      // Updates the loading UI to improve the UX for the user
       if (Object.keys(state.created_workouts)) {
         generatingWorkout.update(
           <div className="inline-flex items-start gap-1 md:items-center">
@@ -105,6 +120,7 @@ async function generateWorkout(chatId: string | undefined, inputData: z.infer<ty
       }
     }
 
+    // Once the workout is generated, reflect that in the loading UI
     generatingWorkout.done(
       <div>
         <p className="mb-2">
@@ -113,12 +129,15 @@ async function generateWorkout(chatId: string | undefined, inputData: z.infer<ty
       </div>
     )
 
+    // Set the system message to the form to display the generated workout
+    // This system message is added on to the UI state in the form component that invokes this function
     systemMessage.done(
       <BotCard>
         <WorkoutReviser chatId={chatId} index={1000} day={state.day} workout={state.current_workout} />
       </BotCard>
     )
 
+    // Updates the AI state with the workout generated
     state.input = {...inputData}
     aiState.done({
       ...aiState.get(),
@@ -148,6 +167,12 @@ async function generateWorkout(chatId: string | undefined, inputData: z.infer<ty
   }
 }
 
+/**
+ * Invokes the LangServe runnable to revise the workout or generate the next workout (depends on the user feedback given)
+ * @param {string | undefined} chatId - The ID of chat which is also used as the thread ID for the LangServe invocation to keep the same session through generating the workouts for a week
+ * @param {string} userFeedback - The feedback user supplied to revise the workout. If it is CONTINUE, that means to not revise and move on to generating the workout for the next day
+ * @param {Workout | undefined} currentWorkout - The current workout edited by the user with alternatives selected. If undefined, this function defaults to using the current workout produced by the LLM
+ */
 async function continueGeneratingWorkout(chatId: string | undefined, userFeedback: string, currentWorkout: Workout | undefined) {
   'use server'
 
@@ -155,6 +180,8 @@ async function continueGeneratingWorkout(chatId: string | undefined, userFeedbac
   const messages = aiState.get().messages
   const lastMessage = messages[messages.length - 1]
 
+  // Sets up the state to the current state of the graph but with the new
+  // user feedback and the updated workout if alternatives were selected
   let state: WorkoutState = {
     ...defaultWorkoutState,
     ...Object.fromEntries(
@@ -166,6 +193,9 @@ async function continueGeneratingWorkout(chatId: string | undefined, userFeedbac
     current_workout: currentWorkout || lastMessage.content[0].state.currentWorkout
   };
 
+  // Adds a user message to the AI state which includes the user feedback
+  // or an empty string if revising without feedbak
+  // or CONTINUE if moving on to the next day
   aiState.update({
     ...aiState.get(),
     messages: [
@@ -181,6 +211,7 @@ async function continueGeneratingWorkout(chatId: string | undefined, userFeedbac
     ]
   })  
 
+  // Creates the UI to display that the workout is being revised or generated
   const generatingWorkout = createStreamableUI(
     <div className="inline-flex items-start gap-1 md:items-center">
       {spinner}
@@ -190,6 +221,8 @@ async function continueGeneratingWorkout(chatId: string | undefined, userFeedbac
     </div>
   )
 
+  // Creates the UI to mimick a bot message to show that it is currently processing
+  // the workout revision or generation
   const systemMessage = createStreamableUI(
     <div className="inline-flex items-start gap-1 md:items-center">
       {spinner}
@@ -199,10 +232,16 @@ async function continueGeneratingWorkout(chatId: string | undefined, userFeedbac
     </div>
   )
 
+  // Chat ID is used as the LangServe Thread ID so the workout session can be maintained
   const threadId = chatId || nanoid();
 
+  // Waits 2 seconds to allow the async AI state update function to run
+  // to add the user message with the user feedback to the database
+  // since the LangGraph agent fetches the user feedback from the database
   await sleep(2000);
 
+  // Updates the loading UI to show that the next workout is being generated
+  // or the current workout is being revised
   generatingWorkout.update(
     <div>
       <p className="mb-2">
@@ -212,6 +251,8 @@ async function continueGeneratingWorkout(chatId: string | undefined, userFeedbac
   )  
 
   runAsyncFnWithoutBlocking(async () => {
+    // Streams the events from the LangServe endpoint as the revision
+    // agent or workout generator agent is running
     const logStream = await runnable.streamEvents(
       null,
       {
@@ -222,8 +263,11 @@ async function continueGeneratingWorkout(chatId: string | undefined, userFeedbac
       }
     );
 
+    // Loops through all events streamed from LangServe agents
     for await (const chunk of logStream) {
       if (chunk.data.output) {
+        // All updates to the internal LangGraph state are pushed into the frontend state object to maintain consistency
+        // of state between the backend and the frontend
         const newState = { 
           ...state, ...Object.fromEntries(Object.entries(chunk.data.output).filter(([key]) => key in state)) 
         };
@@ -231,6 +275,7 @@ async function continueGeneratingWorkout(chatId: string | undefined, userFeedbac
       }
     }
 
+    // Once the workout is generated, reflect that in the loading UI
     generatingWorkout.done(
       <div>
         <p className="mb-2">
@@ -239,6 +284,8 @@ async function continueGeneratingWorkout(chatId: string | undefined, userFeedbac
       </div>
     )
 
+    // Set the system message to the form to display the generated/revised workout
+    // This system message is added on to the UI state in the form component that invokes this function
     systemMessage.done(
       <BotCard>
         {
@@ -253,6 +300,7 @@ async function continueGeneratingWorkout(chatId: string | undefined, userFeedbac
       </BotCard>
     )
 
+    // Updates the AI state with the workout generated/revised
     aiState.done({
       ...aiState.get(),
       messages: [
@@ -296,6 +344,7 @@ export type UIState = {
 const uiState: UIState = [];
 const aiState: AIState = { chatId: nanoid(), messages: [], workoutState: defaultWorkoutState };
 
+// Creates the AI object that is used to generate and revise workouts
 export const AI: any = createAI({
   actions: {
     generateWorkout,
@@ -303,6 +352,8 @@ export const AI: any = createAI({
   },
   initialUIState: uiState,
   initialAIState: aiState,
+  // When a chat initially loads, this function is called to create the UI
+  // state based on the AI state that is saved in the database
   onGetUIState: async () => {
     'use server'
 
@@ -319,6 +370,8 @@ export const AI: any = createAI({
       return
     }
   },
+  // This function is called whenever the AI state is updated to save the AI
+  // state to the database and create the new chat in the database if it is the first message
   onSetAIState: async ({ state }) => {
     'use server'
 
@@ -350,6 +403,8 @@ export const AI: any = createAI({
   }
 })
 
+// This function transforms the AI state into the UI state, including the components
+// for revising workouts, viewing the final set of workouts, and user/AI messages.
 export const getUIStateFromAIState = (aiState: Chat) => {
   return aiState.messages
     .filter(message => message.role !== 'system')

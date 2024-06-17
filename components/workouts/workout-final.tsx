@@ -1,11 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger
-} from '@/components/ui/tooltip'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z, ZodSchema } from "zod"
@@ -15,7 +10,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 
@@ -63,6 +57,8 @@ export function WorkoutFinal({ workouts }: { workouts: Workout[] }) {
     return acc;
   }, {} as Record<string, string>);
 
+  // Creates a React Hook form with a Zod scheme defined dynamically above
+  // The default values for this form are based on the final set of workouts the LLM produced through the LangServe endpoint for the week
   const form = useForm<z.infer<typeof WorkoutOutputSchema>>({
     resolver: zodResolver(WorkoutOutputSchema),
     defaultValues: defaultValues,
