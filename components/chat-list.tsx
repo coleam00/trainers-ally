@@ -37,7 +37,7 @@ export function ChatList({ id, messages, session, isShared }: ChatList) {
                 <Link href="/signup" className="underline">
                   sign up
                 </Link>{' '}
-                to save and revisit your chat history!
+                to save and revisit your workout history!
               </p>
             </div>
           </div>
