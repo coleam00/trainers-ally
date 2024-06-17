@@ -6,7 +6,7 @@ import Textarea from 'react-textarea-autosize'
 import { useActions, useUIState } from 'ai/rsc'
 
 import { UserMessage } from './stocks/message'
-import { type AI } from '@/lib/chat/actions'
+import { UIState, type AI } from '@/lib/chat/actions'
 import { Button } from '@/components/ui/button'
 import { IconArrowElbow, IconPlus } from '@/components/ui/icons'
 import {
@@ -19,23 +19,27 @@ import { nanoid } from 'nanoid'
 import { useRouter } from 'next/navigation'
 
 export function PromptForm({
+  id,
   input,
   setInput
 }: {
+  id: string | undefined
   input: string
   setInput: (value: string) => void
 }) {
   const router = useRouter()
   const { formRef, onKeyDown } = useEnterSubmit()
   const inputRef = React.useRef<HTMLTextAreaElement>(null)
-  const { submitUserMessage } = useActions()
-  const [_, setMessages] = useUIState<typeof AI>()
+  const { continueGeneratingWorkout } = useActions()
+  const [messages, setMessages] = useUIState<typeof AI>()
 
   React.useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus()
     }
   }, [])
+
+  const inputDisabled = messages.length < 1 || messages[messages.length - 1].stage !== "generatedWorkout"
 
   return (
     <form
@@ -52,18 +56,18 @@ export function PromptForm({
         setInput('')
         if (!value) return
 
-        // Optimistically add user message UI
-        setMessages(currentMessages => [
+        setMessages((currentMessages: UIState) => [
           ...currentMessages,
           {
             id: nanoid(),
+            stage: "userMessage",
             display: <UserMessage>{value}</UserMessage>
           }
         ])
-
-        // Submit and get response message
-        const responseMessage = await submitUserMessage(value)
-        setMessages(currentMessages => [...currentMessages, responseMessage])
+    
+        const response = await continueGeneratingWorkout(id, value, undefined);
+    
+        setMessages((currentMessages: UIState[]) => [...currentMessages, response.newMessage]);
       }}
     >
       <div className="relative flex max-h-60 w-full grow flex-col overflow-hidden bg-background px-8 sm:rounded-md sm:border sm:px-12">
@@ -72,7 +76,7 @@ export function PromptForm({
             <Button
               variant="outline"
               size="icon"
-              className="absolute left-0 top-[14px] size-8 rounded-full bg-background p-0 sm:left-4"
+              className="absolute left-0 top-[14px] size-8 rounded-full bg-background p-0 sm:left-4 primary-color-text"
               onClick={() => {
                 router.push('/new')
               }}
@@ -96,12 +100,13 @@ export function PromptForm({
           name="message"
           rows={1}
           value={input}
+          disabled={inputDisabled}
           onChange={e => setInput(e.target.value)}
         />
         <div className="absolute right-0 top-[13px] sm:right-4">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button type="submit" size="icon" disabled={input === ''}>
+              <Button type="submit" size="icon" className="color-btn" disabled={inputDisabled || input === ''}>
                 <IconArrowElbow />
                 <span className="sr-only">Send message</span>
               </Button>

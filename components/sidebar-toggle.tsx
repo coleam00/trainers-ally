@@ -17,7 +17,7 @@ export function SidebarToggle() {
         toggleSidebar()
       }}
     >
-      <IconSidebar className="size-6" />
+      <IconSidebar className="size-6 primary-color-text" />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   )

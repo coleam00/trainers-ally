@@ -33,6 +33,8 @@
     --ring: 240 10% 3.9%;
  
     --radius: 0.5rem;
+
+    --primary-color: #e9ab9c;
   }
  
   .dark {
@@ -73,4 +75,12 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.primary-color-text {
+  color: var(--primary-color) !important;
+}
+
+.color-btn {
+  background-color: var(--primary-color) !important;
 }

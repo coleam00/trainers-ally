@@ -20,9 +20,29 @@ export const useScrollAnchor = () => {
   useEffect(() => {
     if (messagesRef.current) {
       if (isAtBottom && !isVisible) {
-        messagesRef.current.scrollIntoView({
-          block: 'end'
-        })
+        const h3Elements = messagesRef.current.querySelectorAll('h3')
+        if (h3Elements.length > 0) {
+          const lastH3Element = h3Elements[h3Elements.length - 1]
+          const rect = lastH3Element.getBoundingClientRect()
+
+          if (rect.y > 0) {
+            lastH3Element.scrollIntoView({
+              block: 'start',
+              behavior: h3Elements.length > 2 ? 'smooth' : undefined
+            })
+          }
+          else {
+            messagesRef.current.scrollIntoView({
+              block: 'end',
+              behavior: h3Elements.length > 2 ? 'smooth' : undefined
+            })
+          }
+        } else {
+          messagesRef.current.scrollIntoView({
+            block: 'end',
+            behavior: h3Elements.length > 2 ? 'smooth' : undefined
+          })
+        }
       }
     }
   }, [isAtBottom, isVisible])
