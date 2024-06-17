@@ -34,6 +34,9 @@
 - After AI revises a workout, users are given control again to select any final alternative exercises before moving on to the next day
 - After all workouts for the week are created, the AI outputs the final list and users can again select any alternatives
 
+What is the point of these features? The AI generates one workout at a time, allowing for seamless integration of feedback and exercise alternatives. This whole workflow prevents repetition of exercises across days even when workouts are being revised and alternatives are being selected for each day.
+On top of that, AI always does better when each prompt is more focused - so it greatly benefits from creating workouts one day at a time rather than for an entire week.
+
 <br/>
 
 ## Deployment Note
@@ -83,9 +86,11 @@ The backend of Trainer's Ally is simply a LangServe endpoint that hosts a LangGr
 
 The backend of this application is found in the backend folder at the root of this repository.
 
+All instructions below work on any OS, except for activating the virtual environment, where the command to use depending on the OS is specified.
+
 You will need to use the environment variables [defined in `backend/.env.example`](/backend/.env.example) to run the backend. Turn the .env.example file into a `.env` file, and supply the necessary environment variables. The Nvidia API Key and "Use Nvidia" (set this to 'yes' to use Nvidia NIMS) environment variables are required. The optional GROQ API Key is only there to show that other LLMs can be used. The LangChain API key is there for optional LangSmith tracing. For the KV environment variables, see the instructions below for setting up the frontend.
 
-After setting up the .env file, run the below commands to create a Python virtual environment and install the necessary Python packages to run the LangServe endpoint. Note that this requires you to already have Python and PIP installed on your system.
+After setting up the .env file, run the below commands to create a Python virtual environment and install the necessary Python packages to run the LangServe endpoint. Note that this requires you to already have Python (version 3.10.11 or higher) and PIP (version 23.0.1 or higher) installed on your system.
 
 ```bash
 python -m venv trainers-ally-venv
@@ -107,6 +112,8 @@ python trainers-ally-ai-endpoints.py
 
 ## Running Frontend Locally
 
+Instructions below work on any OS (Windows, Mac, or Linux).
+
 Creating a KV Database Instance:
 
 Follow the steps outlined in the [quick start guide](https://vercel.com/docs/storage/vercel-kv/quickstart#create-a-kv-database) provided by Vercel. This guide will assist you in creating and configuring your KV database instance on Vercel, enabling your application to interact with it.
@@ -119,7 +126,7 @@ You will need to use the environment variables [defined in `.env.example`](.env.
 
 > Note: You should not commit your `.env` file or it will expose secrets that will allow others to control access to your various OpenAI and authentication provider accounts.
 
-Finally, to install the necessary NPM packages for the frontend and start it, run the following commands while your current directory is the root of the repo. Note that this assumes you already have Node, NPM, and PNPM installed on your system. Feel free to use NPM instead of PNPM commands as well:
+Finally, to install the necessary NPM packages for the frontend and start it, run the following commands while your current directory is the root of the repo. Note that this assumes you already have Node (version 20.8.0 or higher), NPM (version 10.1.0 or higher), and PNPM (version 9.3.0 or higher) installed on your system. Feel free to use NPM instead of PNPM commands as well:
 
 ```bash
 pnpm install
