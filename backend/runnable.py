@@ -1,20 +1,10 @@
 from langgraph.checkpoint.memory import MemorySaver
-from firebase_admin import credentials, firestore
 from langgraph.graph import END, StateGraph
 from typing_extensions import TypedDict
 from typing import List
-import firebase_admin
 import time
 
 from helpers import get_chain, format_workouts, get_latest_state_from_chat
-
-# Initialize Firebase Admin SDK
-credential_path = 'credentials/firebaseCreds.json'
-cred = credentials.Certificate(credential_path)
-firebase_admin.initialize_app(cred)
-
-# Connect to Firestore
-db = firestore.client()
 
 ### State
 class GraphState(TypedDict):

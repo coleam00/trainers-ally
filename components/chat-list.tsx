@@ -45,12 +45,18 @@ export function ChatList({ id, messages, session, isShared }: ChatList) {
         </>
       ) : null}
 
-      {startingMessage.concat(messages).map((message, index) => (
-        <div key={message.id}>
-          {message.display}
-          {index < messages.length && <Separator className="my-4" />}
-        </div>
-      ))}
+      <div className="md:hidden flex justify-center mt-10 h-screen text-center">
+        <h1>Mobile design for this app is still in progress. Please use the desktop version!</h1>
+      </div>
+      
+      <div className="hidden md:block">
+        {startingMessage.concat(messages).map((message, index) => (
+          <div key={message.id}>
+            {message.display}
+            {index < messages.length && <Separator className="my-4" />}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
