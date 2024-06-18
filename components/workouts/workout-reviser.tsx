@@ -207,7 +207,7 @@ export function WorkoutReviser({ chatId, index, day, workout }: { chatId: string
     <BotCard>
       <div className="p-4 ml-2 border rounded-xl bg-zinc-100 dark:bg-zinc-950">
         <h3 className="primary-color-text text-center pt-2 mb-2 text-2xl font-bold">Workout for Day {day}</h3>
-        <p className="mb-4 text-md text-center">You can select altnerative workouts below before continuing with the next day.</p>
+        <p className="mb-4 text-md text-center">You can select alternative workouts below before continuing with the next day.</p>
         <div className="flex justify-center">
           <Form {...form}>
             <form className="space-y-6">

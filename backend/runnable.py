@@ -104,8 +104,6 @@ def post_workout_generator(state):
   current_workout = lastest_state.get("current_workout", current_workout)
   user_feedback = lastest_state.get("user_feedback", user_feedback)
 
-  print(f"User feedback in post processor is: {user_feedback}")
-
   return {"created_workouts": created_workouts[:-1] + [current_workout], "current_workout": current_workout, "user_feedback": user_feedback}    
 
 def revised_workout_generator(state):
@@ -228,8 +226,6 @@ def route_to_results(state):
   # Get all the info needed to determine if the last workout was created
   day = state["day"]
   workouts_in_week = state["workouts_in_week"]
-
-  print(f"Day is: {day}")
 
   # If all workouts have been created for the day, go to the results node.
   # Otherwise, move on to create the workout for the next day.
